@@ -5,7 +5,7 @@ import IssueDetail from "./pages/IssueDetail"; // ✅ placeholder for Brick 3
 import Dashboard from "./pages/Dashboard";
 import { dummyIssues as initialIssues } from "./mockData";
 import { useState } from "react";
-import ReportIssue from "./pages/ReportIssue";
+// import ReportIssue from "./pages/ReportIssue";
 
 
 function App() {

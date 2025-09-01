@@ -11,7 +11,7 @@ import {
 
 function IssueDetail({issues}) {
   const { id } = useParams();
-  const issue = issues.find((item) => item.id === id);
+  const issue = issues.find((item) => String(item.id) === id);
 
   if (!issue) {
     return (
