@@ -7,11 +7,34 @@ import {
   Typography,
   Chip,
   Divider,
+  Button,
 } from "@mui/material";
+import { useState, useEffect } from "react";
 
-function IssueDetail({issues}) {
+function IssueDetail({ issues, setIssues }) {
   const { id } = useParams();
   const issue = issues.find((item) => String(item.id) === id);
+
+  const [votedIssues, setVotedIssues] = useState([]);
+
+  useEffect(() => {
+    const storedVotes = JSON.parse(localStorage.getItem("votedIssues")) || [];
+    setVotedIssues(storedVotes);
+  }, []);
+
+  const handleUpvote = () => {
+    if (votedIssues.includes(issue.id)) return;
+
+    setIssues((prevIssues) =>
+      prevIssues.map((it) =>
+        it.id === issue.id ? { ...it, upvotes: it.upvotes + 1 } : it
+      )
+    );
+
+    const updatedVotes = [...votedIssues, issue.id];
+    setVotedIssues(updatedVotes);
+    localStorage.setItem("votedIssues", JSON.stringify(updatedVotes));
+  };
 
   if (!issue) {
     return (
@@ -78,6 +101,19 @@ function IssueDetail({issues}) {
                       }
                     />
                   </Typography>
+                </Col>
+              </Row>
+
+              {/* Upvote button */}
+              <Row className="mt-4">
+                <Col>
+                  <Button
+                    variant="outlined"
+                    onClick={handleUpvote}
+                    disabled={votedIssues.includes(issue.id)}>
+                    👍 {votedIssues.includes(issue.id) ? "Voted" : "Upvote"} (
+                    {issue.upvotes})
+                  </Button>
                 </Col>
               </Row>
             </CardContent>
