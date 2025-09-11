@@ -17,6 +17,9 @@ import {
   Divider,
   TextField,
   InputAdornment,
+  Avatar,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -29,7 +32,6 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchIcon from "@mui/icons-material/Search";
 import { useAuth } from "../context/AuthContext";
-import Avatar from "@mui/material/Avatar";
 
 const links = [
   { label: "Home", to: "/", icon: <HomeRoundedIcon fontSize="small" /> },
@@ -68,6 +70,8 @@ export default function Navbar({ setFilters }) {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
 
   const { user, logout } = useAuth();
 
@@ -95,13 +99,15 @@ export default function Navbar({ setFilters }) {
       alignItems="center"
       component={RouterLink}
       to="/"
-      style={{ textDecoration: "none" }}>
+      style={{ textDecoration: "none" }}
+    >
       <Box
         sx={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 6px)",
           gap: "4px",
-        }}>
+        }}
+      >
         {[0, 1, 2].map((i) => (
           <Box
             key={i}
@@ -116,7 +122,8 @@ export default function Navbar({ setFilters }) {
       </Box>
       <Typography
         variant="h6"
-        sx={{ fontWeight: 800, letterSpacing: 1, color: "text.primary" }}>
+        sx={{ fontWeight: 800, letterSpacing: 1, color: "text.primary" }}
+      >
         CIVIC-PULSE
       </Typography>
     </Stack>
@@ -135,7 +142,16 @@ export default function Navbar({ setFilters }) {
             color: active ? "primary.main" : "text.secondary",
             fontWeight: active ? 700 : 500,
             textTransform: "none",
-          }}>
+            borderRadius: 2,
+            px: 2,
+            py: 0.5,
+            transition: "all 0.25s ease",
+            "&:hover": {
+              bgcolor: "rgba(0,0,0,0.04)",
+              transform: "translateY(-2px)",
+            },
+          }}
+        >
           {label}
         </Button>
         {active && <ActiveUnderline />}
@@ -161,6 +177,12 @@ export default function Navbar({ setFilters }) {
             <SearchRoundedIcon color="action" />
           </InputAdornment>
         ),
+        style: {
+          borderRadius: 50,
+          backgroundColor: "rgba(255,255,255,0.6)",
+          backdropFilter: "blur(8px)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        },
       }}
     />
   );
@@ -173,9 +195,12 @@ export default function Navbar({ setFilters }) {
           color="inherit"
           elevation={elevation}
           sx={{
-            backdropFilter: "saturate(180%) blur(8px)",
-            bgcolor: "rgba(255,255,255,0.9)",
-          }}>
+            backdropFilter: "blur(16px) saturate(180%)",
+            bgcolor: "rgba(255,255,255,0.75)",
+            borderBottom: "1px solid rgba(255,255,255,0.3)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+          }}
+        >
           <Container maxWidth="lg">
             <Toolbar disableGutters sx={{ py: 0.5 }}>
               {/* Left: Brand */}
@@ -185,7 +210,8 @@ export default function Navbar({ setFilters }) {
               <Stack
                 direction="row"
                 spacing={1.5}
-                sx={{ ml: 4, display: { xs: "none", md: "flex" } }}>
+                sx={{ ml: 4, display: { xs: "none", md: "flex" } }}
+              >
                 {links.map((l) => (
                   <NavButton key={l.to} {...l} />
                 ))}
@@ -199,7 +225,8 @@ export default function Navbar({ setFilters }) {
                 <motion.div
                   initial={{ width: 200 }}
                   whileFocus={{ width: 300 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}>
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
                   <TextField
                     size="small"
                     placeholder="Search issues..."
@@ -213,7 +240,9 @@ export default function Navbar({ setFilters }) {
                       ),
                       style: {
                         borderRadius: 50,
-                        backgroundColor: "#fff",
+                        backgroundColor: "rgba(255,255,255,0.6)",
+                        backdropFilter: "blur(8px)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                       },
                     }}
                   />
@@ -227,7 +256,8 @@ export default function Navbar({ setFilters }) {
                 sx={{
                   display: { xs: "none", md: "flex" },
                   alignItems: "center",
-                }}>
+                }}
+              >
                 {!user ? (
                   <>
                     {authLinks.map((l) => (
@@ -237,7 +267,8 @@ export default function Navbar({ setFilters }) {
                         to={l.to}
                         startIcon={l.icon}
                         variant={l.label === "Register" ? "contained" : "text"}
-                        sx={{ textTransform: "none" }}>
+                        sx={{ textTransform: "none" }}
+                      >
                         {l.label}
                       </Button>
                     ))}
@@ -247,14 +278,33 @@ export default function Navbar({ setFilters }) {
                     <Avatar
                       src={user.photoURL}
                       alt={user.displayName}
-                      sx={{ width: 36, height: 36 }}
+                      sx={{ width: 36, height: 36, cursor: "pointer" }}
+                      onClick={(e) => setAnchorEl(e.currentTarget)}
                     />
-                    <Button
-                      onClick={logout}
-                      variant="outlined"
-                      sx={{ textTransform: "none" }}>
-                      Logout
-                    </Button>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={openMenu}
+                      onClose={() => setAnchorEl(null)}
+                      PaperProps={{
+                        sx: {
+                          borderRadius: 3,
+                          mt: 1,
+                          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                        },
+                      }}
+                    >
+                      <MenuItem onClick={() => setAnchorEl(null)}>
+                        Profile
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          logout();
+                          setAnchorEl(null);
+                        }}
+                      >
+                        Logout
+                      </MenuItem>
+                    </Menu>
                   </>
                 )}
               </Stack>
@@ -263,19 +313,35 @@ export default function Navbar({ setFilters }) {
               <IconButton
                 edge="end"
                 sx={{ ml: 1, display: { xs: "inline-flex", md: "none" } }}
-                onClick={() => setOpen(true)}>
+                onClick={() => setOpen(true)}
+              >
                 <MenuRoundedIcon />
               </IconButton>
             </Toolbar>
           </Container>
 
           {/* Mobile Drawer */}
-          <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
+          <Drawer
+            anchor="right"
+            open={open}
+            onClose={() => setOpen(false)}
+            PaperProps={{
+              sx: {
+                width: 300,
+                borderTopLeftRadius: 20,
+                borderBottomLeftRadius: 20,
+                bgcolor: "rgba(255,255,255,0.8)",
+                backdropFilter: "blur(12px)",
+                boxShadow: "-4px 0 20px rgba(0,0,0,0.1)",
+              },
+            }}
+          >
             <Box sx={{ width: 300, p: 2 }} role="presentation">
               <Stack
                 direction="row"
                 alignItems="center"
-                justifyContent="space-between">
+                justifyContent="space-between"
+              >
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   Menu
                 </Typography>
@@ -298,12 +364,14 @@ export default function Navbar({ setFilters }) {
                       initial={{ opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 12 }}
-                      transition={{ delay: idx * 0.05 }}>
+                      transition={{ delay: idx * 0.05 }}
+                    >
                       <ListItemButton
                         component={RouterLink}
                         to={l.to}
                         onClick={() => setOpen(false)}
-                        selected={pathname === l.to}>
+                        selected={pathname === l.to}
+                      >
                         {l.icon}
                         <ListItemText primary={l.label} sx={{ ml: 1 }} />
                       </ListItemButton>
@@ -321,7 +389,8 @@ export default function Navbar({ setFilters }) {
                       key={l.label}
                       component={RouterLink}
                       to={l.to}
-                      onClick={() => setOpen(false)}>
+                      onClick={() => setOpen(false)}
+                    >
                       {l.icon}
                       <ListItemText primary={l.label} sx={{ ml: 1 }} />
                     </ListItemButton>
@@ -340,7 +409,8 @@ export default function Navbar({ setFilters }) {
                       onClick={() => {
                         logout();
                         setOpen(false);
-                      }}>
+                      }}
+                    >
                       <ListItemText primary="Logout" />
                     </ListItemButton>
                   </>

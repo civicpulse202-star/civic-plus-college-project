@@ -4,26 +4,49 @@ import IssueList from "./IssueList";
 import ReportIssue from "./ReportIssue";
 
 function IssuePage({ issues, setIssues, addIssue, filters }) {
-  // 🔑 Apply filters here
-  const filteredIssues = (issues || []).filter((issue) => {
-    const matchesSearch =
-      !filters.search ||
-      issue.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-      issue.description.toLowerCase().includes(filters.search.toLowerCase());
+   // Compute ranked issues instead of strict filtering
+  const rankedIssues = (issues || []).map((issue) => {
+    let score = 0;
 
-    const matchesCategory =
-      !filters.category || issue.category === filters.category;
+    // Search matches (title, description, category, location)
+    if (
+      filters.search &&
+      (
+        issue.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+        issue.description.toLowerCase().includes(filters.search.toLowerCase()) ||
+        issue.category.toLowerCase().includes(filters.search.toLowerCase()) ||
+        issue.location.toLowerCase().includes(filters.search.toLowerCase())
+      )
+    ) {
+      score += 2; // Stronger weight for search
+    }
 
-    const matchesStatus = !filters.status || issue.status === filters.status;
+    // Category match
+    if (filters.category && issue.category === filters.category) {
+      score += 1;
+    }
 
-    const matchesLocation =
-      !filters.location ||
-      issue.location.toLowerCase().includes(filters.location.toLowerCase());
+    // Status match
+    if (filters.status && issue.status === filters.status) {
+      score += 1;
+    }
 
-    return matchesSearch && matchesCategory && matchesStatus && matchesLocation;
+    // Location match
+    if (
+      filters.location &&
+      issue.location.toLowerCase().includes(filters.location.toLowerCase())
+    ) {
+      score += 1;
+    }
+
+    return { ...issue, score };
   });
 
-  const hasIssues = filteredIssues.length > 0;
+  // Sort by score descending (higher match first), then maybe by upvotes
+  const sortedIssues = rankedIssues
+    .sort((a, b) => b.score - a.score || b.upvotes - a.upvotes);
+
+  const hasIssues = sortedIssues.length > 0;
 
   return (
     <div className="container my-5">
@@ -79,7 +102,7 @@ function IssuePage({ issues, setIssues, addIssue, filters }) {
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}>
-                <IssueList issues={filteredIssues} setIssues={setIssues} />
+                <IssueList issues={sortedIssues} setIssues={setIssues} />
               </motion.div>
 
               {/* Right side - Report form */}
