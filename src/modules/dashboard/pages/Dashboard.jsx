@@ -19,9 +19,9 @@ import {
 import { motion } from "framer-motion";
 
 // Import chart components
-import PieChartIssues from "../modules/dashboard/components/PieChartIssues";
-import BarChartStatus from "../modules/dashboard/components/BarChartStatus";
-import LineChartGrowth from "../modules/dashboard/components/LineChartGrowth";
+import PieChartIssues from "../components/PieChartIssues";
+import BarChartStatus from "../components/BarChartStatus";
+import LineChartGrowth from "../components/LineChartGrowth";
 
 // Function to map status to MUI color
 const getStatusColor = (status) => {
@@ -93,7 +93,20 @@ const Dashboard = ({ issues, updateIssueStatus }) => {
           </Row>
 
           {/* Charts Section */}
-          <Row className="mb-4">
+          {/* Charts Section */}
+            <Row className="mb-4">
+              <Col md={6} className="mb-3">
+                <PieChartIssues issues={issues} />  {/* ✅ pass issues */}
+              </Col>
+              <Col md={6} className="mb-3">
+                <LineChartGrowth issues={issues} />  {/* ✅ pass issues */}
+              </Col>
+              <Col md={12} className="mb-3">
+                <BarChartStatus issues={issues} />  {/* ✅ pass issues */}
+              </Col>
+            </Row>
+
+          {/* <Row className="mb-4">
             <Col md={6} className="mb-3">
               <PieChartIssues />
             </Col>
@@ -103,7 +116,7 @@ const Dashboard = ({ issues, updateIssueStatus }) => {
             <Col md={12} className="mb-3">
               <BarChartStatus />
             </Col>
-          </Row>
+          </Row> */}
 
           {/* Issues Table */}
           <Grow in timeout={800}>
