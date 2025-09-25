@@ -18,6 +18,11 @@ import {
 } from "@mui/material";
 import { motion } from "framer-motion";
 
+// Import chart components
+import PieChartIssues from "../modules/dashboard/components/PieChartIssues";
+import BarChartStatus from "../modules/dashboard/components/BarChartStatus";
+import LineChartGrowth from "../modules/dashboard/components/LineChartGrowth";
+
 // Function to map status to MUI color
 const getStatusColor = (status) => {
   switch (status) {
@@ -85,6 +90,19 @@ const Dashboard = ({ issues, updateIssueStatus }) => {
                 </motion.div>
               </Col>
             ))}
+          </Row>
+
+          {/* Charts Section */}
+          <Row className="mb-4">
+            <Col md={6} className="mb-3">
+              <PieChartIssues />
+            </Col>
+            <Col md={6} className="mb-3">
+              <LineChartGrowth />
+            </Col>
+            <Col md={12} className="mb-3">
+              <BarChartStatus />
+            </Col>
           </Row>
 
           {/* Issues Table */}
